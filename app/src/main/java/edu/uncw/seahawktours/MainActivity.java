@@ -6,13 +6,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-    private String screen_state;
-    private String building_state;
+    private String lastBuilding;
 
-    // @ author Alex Bolsoy
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,8 +21,6 @@ public class MainActivity extends Activity {
         spin.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                // do something with spinner item
-                // automatically selects first item in spinner - get around this
                 String[] building_names = getResources().getStringArray(R.array.building_names);
                 if (i==0) {
                     // do nothing
@@ -32,12 +29,15 @@ public class MainActivity extends Activity {
                     String building;
                     String info;
                 if (i == 1) {
+                        // User selects CIS Building
                         building = building_names[1];
                         info = getResources().getString(R.string.cis_info);
                     } else if (i == 2) {
+                        // User selects Hoggard Hall
                         building = building_names[2];
                         info = getResources().getString(R.string.hoggard_info);
                     } else if (i == 3) {
+                        // User selects Deloach
                         building = building_names[3];
                         info = getResources().getString(R.string.deloach_info);
                     } else {
@@ -45,25 +45,25 @@ public class MainActivity extends Activity {
                         info = "";
                     }
                     onChooseBuilding(building, info);
+                    lastBuilding = building;
                 }
 
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                // do not need to worry about this
+                // do not worry about this
             }
         });
 
         if (savedInstanceState != null) {
-            screen_state = savedInstanceState.getString("state");
-            building_state = savedInstanceState.getString("building");
+            lastBuilding = savedInstanceState.getString("lastBuilding");
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-
+        savedInstanceState.putString("lastBuilding", lastBuilding);
     }
 
     public void onChooseBuilding(String building, String info) {
@@ -73,17 +73,13 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
-    public void onClickSelect(View view) {
-        //Get a reference to the Spinner
-        Spinner building = (Spinner) findViewById(R.id.building);
-        //Get the selected item in the Spinner
-        String buildingName = String.valueOf(building.getSelectedItem());
-
-        // Returns string with info that I need
-        getResources().getString(R.string.cis_info);
-
-        //building.onItemSelectedListener();
-        // first item in list is automatically selected - first item in spinner blank
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (lastBuilding != null) {
+            TextView previous = findViewById(R.id.last_building);
+            String text = "Previous Building: " + lastBuilding;
+            previous.setText(text);
+        }
     }
 }
